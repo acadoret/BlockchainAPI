@@ -8,12 +8,13 @@ api = UserDto.api
 _user = UserDto.user
 
 
-@api.route('/')
+@api.route('/', methods=['GET','POST'])
 class UserList(Resource):
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
     def get(self):
         """List all registered users"""
+        print('get_user')
         return get_all_users()
 
     @api.response(201, 'User successfully created.')
@@ -21,6 +22,7 @@ class UserList(Resource):
     @api.expect(_user, validate=True)
     def post(self):
         """Creates a new User """
+        print('post_user')
         # TODO: Faire la partie création wallet 
         # ETH et placer l'@ETH dans data 
         data = request.json
@@ -35,6 +37,7 @@ class User(Resource):
     @api.marshal_with(_user)
     def get(self, public_id):
         """get a user given its identifier"""
+        print('get_a_user')
         user = get_a_user(public_id)
         if not user:
             api.abort(404)

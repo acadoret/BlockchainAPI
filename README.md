@@ -35,3 +35,5 @@ Based on [Flask microframework](https://flask.palletsprojects.com/en/1.1.x/)
     python manage.py db upgrade
 ### Run testing procedure :
     python manage.py test
+### PUT CLI request : 
+     $ curl -X PUT -H "Content-Type: application/json" -d '{"name":"mkyong","email":"abc@gmail.com"}' http://localhost:5000/users

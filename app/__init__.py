@@ -12,5 +12,5 @@ api = Api(
     description='Test for flask restplus web service'
 )
 
-api.add_namespace(user_ns, path='/user')
+api.add_namespace(user_ns, path='/users')
 
