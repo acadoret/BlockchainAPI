@@ -1,5 +1,6 @@
 class Proposal:
-    name, address = ""
+    name = ""
+    address = ""
     vote_count = 0
     is_winning = False
 

@@ -9,5 +9,5 @@ host = 'http://127.0.0.1:7545'
 provider = HTTPProvider(host)
 web3 = Web3(provider)
 
-print('Is connect to {} : {}'.format(host, web3.isConnected()))
+print('Connected to {} : {}'.format(host, web3.isConnected()))
 

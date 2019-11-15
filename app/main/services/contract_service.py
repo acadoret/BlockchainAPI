@@ -4,12 +4,13 @@ from datetime import datetime
 from os import urandom
 
 from app.main import db
-from app.main.models.user import User
 from app.main.models.contract import Contract, ContractEncoder
 from app.main.models.proposal import Proposal
+from app.main.models.user import User
 
 from ..utils.blockchain_utils import web3
 
+date_format = "%d/%m/%Y"
 
 def create_contract(data):
     print('create_contract')
@@ -67,6 +68,12 @@ def get_all_contracts():
     print('get_all_contracts')
     return Contract.query.all()
 
+def get_contracts_in_progress():
+    print('get_contracts_in_prograss')
+    return Contract.query.filter(
+        Contract.end_date > datetime.now().strftime(date_format)
+    ).first_or_404(description = 'There is no contract in progress')
+
 def get_a_contract(data):
     print('get_a_contract')
     if data['address']:
@@ -81,7 +88,7 @@ def save_new_contract(data):
         address = data['contractAddress'], 
         name = data['name'], 
         description = data['descripiton'],
-        end_date = datetime.strptime(data['end_date'], "%d/%m/%Y"),
+        end_date = datetime.strptime(data['end_date'], date_format),
         user_id = data['user']['address']
     )
     # Store contract to database

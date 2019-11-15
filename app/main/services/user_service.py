@@ -53,7 +53,9 @@ def get_all_users():
 
 def get_a_user(email):
     print('get_a_user')
-    return User.query.filter_by(email=email).first()
+    return User.query.filter_by(email=email).first_or_404(
+        description='There is no data with {}'.format(email)
+    )
 
 def is_connected(data):
     print('is_connected')
