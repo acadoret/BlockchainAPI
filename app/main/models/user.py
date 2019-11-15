@@ -1,4 +1,5 @@
 from .. import db, flask_bcrypt
+from sqlalchemy.ext.declarative import DeclarativeMeta
 import json
 class User(db.Model):
     """ User Model for storing user related details """
@@ -25,7 +26,8 @@ class User(db.Model):
 
     @password.getter
     def password(self):
-        raise AttributeError('password: write-only field')
+        # raise AttributeError('password: write-only field')
+        return False
 
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password_hash, password)
@@ -33,16 +35,26 @@ class User(db.Model):
     def __repr__(self):
         return "<User '{}' -> {}>".format(self.username, self.address)
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
 
 # A specialised JSONEncoder that encodes User
 # objects as JSON
 class UserEncoder(json.JSONEncoder):
-    def default(self, object):
-        if isinstance(object, User):
-            return object.__dict__
-        else:
-            # call base class implementation which takes care of
-            # raising exceptions for unsupported types
-            return json.JSONEncoder.default(self, object)
 
- 
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata' and 'password' not in x]:
+                data = obj.__getattribute__(field)
+                try:
+                    json.dumps(data) # this will fail on non-encodable values, like other classes
+                    fields[field] = data
+                except TypeError:
+                    fields[field] = None
+            # a json-encodable dict
+            return fields
+
+        return json.JSONEncoder.default(self, obj)

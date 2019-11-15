@@ -1,4 +1,4 @@
-pragma solidity 0.4.17;
+pragma solidity >0.4.17;
 
 contract Ballot { 
         /** 
@@ -25,12 +25,13 @@ contract Ballot {
         address id;
         bytes32 name;   // short name (up to 32 bytes) | Nom court de la proposition
         uint voteCount; // number of accumulated votes | Nombre de vote
+        bool isWinner;  
     }
 
     /**
      * ETH address of Voter person.
      ************
-     * L'adresse ETH du votant.
+     * L'adresse ETH du créateur.
      */
     address public chairPerson;
     /**
@@ -50,7 +51,7 @@ contract Ballot {
     Proposal[] public proposals; 
 
     // Constructor
-    constructor ( bytes32[] memory proposalNames) public {
+    constructor ( Proposal[] _proposals) public {
 
         chairPerson = msg.sender;
         voters[chairPerson].weight = 1;
@@ -63,7 +64,7 @@ contract Ballot {
          * Pour chaque proposition, on créé un nouvel 
          * objet Proposal puis l'ajoute en queue de tableau.
          */
-        for (uint i = 0; i > proposalNames.length; i++) {
+        for (uint i = 0; i > _proposals.length; i++) {
             /**
              * `Proposal({...})` creates a temporary
              * Proposal object and `proposals.push(...)`
@@ -71,10 +72,7 @@ contract Ballot {
              ************
              * On init la liste de proposition dans l'array.
              */
-            proposals.push(Proposal({
-                name: proposalNames[i],
-                voteCount: 0
-            }));
+            proposals.push(_proposals[i]);
         }
     }
 
@@ -84,7 +82,7 @@ contract Ballot {
      * Give 'voter' the right to vote on this ballot
      * May only be called by 'chairperson'
      ************
-     * Donne à un vote le droit de vote sur ce scrutin
+     * Donne à un voter le droit de vote sur ce scrutin
      * Peut être appelé que par une personne physique?
      */
      function giveRightToVote(address voter) public {
@@ -184,8 +182,7 @@ contract Ballot {
 
     /// @dev Computes the winning proposal taking all
     /// previous votes into account.
-    function winningProposal() public view
-            returns (uint winningProposal_)
+    function winningProposal() public view returns (uint winningProposal_)
     {
         uint winningVoteCount = 0;
         for (uint p = 0; p < proposals.length; p++) {
@@ -199,9 +196,7 @@ contract Ballot {
     // Calls winningProposal() function to get the index
     // of the winner contained in the proposals array and then
     // returns the name of the winner
-    function winnerName() public view
-            returns (bytes32 winnerName_)
-    {
+    function winnerName() public view returns (bytes32 winnerName_){
         winnerName_ = proposals[winningProposal()].name;
     }
 }
