@@ -64,16 +64,18 @@ def create_contract(data):
     }, 401
 
 def get_all_contracts():
-    # print(User.query.all())
+    print('get_all_contracts')
     return Contract.query.all()
 
 def get_a_contract(data):
+    print('get_a_contract')
     if data['address']:
         return Contract.query.filter_by(address=data['address']).first()
     else:
         return Contract.query.filter_by(address=data['name'])
 
 def save_new_contract(data):
+    print('save_new_contract')
     # Instanciate new contract
     new_contract = Contract(
         address = data['contractAddress'], 
@@ -87,5 +89,6 @@ def save_new_contract(data):
     return new_contract
 
 def save_changes(data):
+    print('save_changes')
     db.session.add(data)
     db.session.commit()

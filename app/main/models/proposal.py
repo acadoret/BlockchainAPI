@@ -6,3 +6,6 @@ class Proposal:
     def __init__(self, _name, _address):
         self.name = _name
         self.address = _address
+
+    def __repr__(self):
+        return "<Proposal '{}' -> {}>".format(self.address, self.name)

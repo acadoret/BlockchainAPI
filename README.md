@@ -8,32 +8,27 @@ Based on [Flask microframework](https://flask.palletsprojects.com/en/1.1.x/)
 
 ### Managing users
  - Create user:  `/users/create`
- - Get users: `/users`
- - Get user by address: `/users/<address>`
- - Update an existing user: `/users/update/<id>`
+ - Get all users: `/users`
+ - Get a single user by address: `/users/<address>`
+ - Update an existing user: `/users/update/<address>`
 
 ### Managing contracts
  - Create contract:  `/contracts/create`
- - Get contracts: `/contracts`
- - Get contract by id: `/contracts/<address>`
+ - Get all contracts: `/contracts`
+ - Get a single contract by address: `/contracts/<address>`
  
 # Tips
 
-### Refresh dependencies :
-    pip freeze > requirements.txt
-### Install dependencies from requirements :
+### Install dependencies from requirements:
     pip install -r requirements.txt
-### Run venv : 
-    sources /env/bin/activate
-### Start server : 
-    python manage.py run
-### Init db : 
-    python manage.py db init
-### Make migration : 
+### Run venv: 
+    sources /<path_to_env>/bin/activate
+### Make migration: 
     python manage.py db migrate --message 'put message here'
-### Upgrade db :
+### Upgrade db:
     python manage.py db upgrade
-### Run testing procedure :
+### Start server: 
+    python manage.py run
+### Run testing procedure:
     python manage.py test
-### PUT CLI request : 
-     $ curl -X PUT -H "Content-Type: application/json" -d '{"name":"mkyong","email":"abc@gmail.com"}' http://localhost:5000/users
+

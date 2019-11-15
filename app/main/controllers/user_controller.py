@@ -49,10 +49,10 @@ class UserCreate(Resource):
 @api.route('/auth', methods=['POST'])
 @api.param('email', 'The User identifier')
 @api.param('password', 'His password')
-@api.response(404, 'User not found.')
+@api.response(404, 'Incorrect login credentials.')
 class AuthUser(Resource):
     @api.response(201, 'User successfully logged.')
-    @api.doc('authentificate a user')
+    @api.doc('Log a user')
     @api.expect(_user, validate=True)
     def post(self):
         """Authentificate a user"""
