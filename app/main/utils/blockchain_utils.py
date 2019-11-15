@@ -1,3 +1,13 @@
 from web3 import Web3, HTTPProvider
+import os
+import json
 
-web3 = Web3(HTTPProvider('http://ropsten.infura.io/v3/6796dadf9c984adb8a645758b544b7fd'))
+# from web3.providers.eth_tester import EthereumTesterProvider
+# from solc import compile_source
+
+host = 'http://127.0.0.1:7545'
+provider = HTTPProvider(host)
+web3 = Web3(provider)
+
+print('Is connect to {} : {}'.format(host, web3.isConnected()))
+

@@ -2,11 +2,19 @@ from flask_restplus import Namespace, fields
 
 
 class UserDto:
-    api = Namespace('user', description='user related operations')
+    api = Namespace('user', description='User related operations')
     user = api.model('user', {
-        'address': fields.String(description='user eth address'),
-        'email': fields.String(required=True, description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'password': fields.String(required=True, description='user password'),
-        'public_id': fields.String(description='user Identifier')
+        'email': fields.String(required=True, description='User email address'),
+        'username': fields.String(description='Username'),
+        'password': fields.String(description='User password'),
+        'password_hash': fields.String(description='Hashed password')
+    })
+
+
+class ContractDto:
+    api = Namespace('contract', description='Contract related operations')
+    contract = api.model('contract', {
+        'name': fields.String(required=True, description='Ballot/Survey\'s name'),
+        'description': fields.String(description='Description for the ballot/survey'),
+        'end_date': fields.Date(required=True, description='End date of this ballot/survey')
     })
