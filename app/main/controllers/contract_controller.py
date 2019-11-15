@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Resource
 
 from ..utils.dto import ContractDto
-from ..services.contract_service import create_contract, get_all_contracts, get_contracts_in_progress, get_a_contract
+from ..services.contract_service import create_contract, get_all_contracts, get_contracts_in_progress, get_a_contract, send_vote
 
 api = ContractDto.api
 _contract = ContractDto.contract
@@ -25,7 +25,7 @@ class ContractList(Resource):
 @api.param('address', 'The Contract identifier')
 @api.response(404, 'Contract not found.')
 class Contract(Resource):
-    @api.doc('get a contract')
+    @api.doc('Get a contract')
     @api.marshal_with(_contract)
     def get(self, address):
         """Get contract with his identifier"""
@@ -37,6 +37,13 @@ class Contract(Resource):
             return contract
 
 
+    @api.response(201, 'Your vote has been saved.')
+    @api.doc('Vote for a proposal')
+    @api.expect(_contract, validate=True)
+    def post(self,contract_address, proposal_address):
+        print('vote for proposal')
+        return send_vote(data=request.json)
+
 @api.route('/create', methods=['POST'])
 class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created.')
@@ -45,5 +52,4 @@ class ContractCreate(Resource):
     def post(self):
         """Create a new contract """
         print('post_contract')
-        data = request.json
-        return create_contract(data=data)
+        return create_contract(data=request.json)

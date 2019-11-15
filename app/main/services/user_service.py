@@ -12,6 +12,22 @@ from app.main.models.user import User, UserEncoder
 from ..utils.blockchain_utils import web3
 from ..utils.dto import UserDto
 
+def generate_token(user):
+    try:
+        # generate the auth token
+        auth_token = user.encode_auth_token(user.address)
+        return {
+            'status': 'success',
+            'message': 'Successfully registered.',
+            'Authorization': auth_token.decode(),
+            'user' : json.dumps(user, cls=UserEncoder)
+        }, 201
+
+    except Exception as e:
+        return {
+            'status': 'fail',
+            'message': 'Some error occurred. Please try again.'
+        }, 401
 
 def path_leaf(path):
     """
@@ -20,27 +36,35 @@ def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
-def save_new_user(data):
+def mass_creating(_range):
+    _data= {}
+    for _index in range(0,_range):
+        _data['password'] = "dummy"
+        _data['username'] = "dummy_{}".format(_index)
+        _data['email'] = "dummy_{}".format(_index)
+        save_new_user(data=_data,index=_index)
+    return {
+        'status': 'success',
+        'message': '{} Users are successfully registered.'.format(_range),
+    }, 201 
+
+def save_new_user(data, index=0):
     """
     Saver in DB : This create a User object in SQLiteDB with geven parameters  
     """
     user = User.query.filter_by(email=data['email']).first()
-
     if not user:
         new_user = User(
-            address=web3.eth.accounts[4],
-            path_to_key=path_leaf('/home/antoine/Documents/pkey4.txt'),
-            password=data['password'],
-            email=data['email'],
-            username=data['username'],
+            address=web3.eth.accounts[index],
+            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(index)),
+            password=data.get('password'),
+            email=data.get('email'),
+            username=data.get('username'),
             registered_on=datetime.utcnow()
         )
         save_changes(new_user)
-        return {
-            'status': 'success',
-            'message': 'Successfully registered.',
-            'user' : json.dumps(new_user, cls=UserEncoder)
-        }, 201
+
+        return generate_token(new_user)
         
     return {
         'status': 'fail',
@@ -59,7 +83,7 @@ def get_a_user(email):
 
 def is_connected(data):
     print('is_connected')
-    user = User.query.filter_by(email=data['email']).first()
+    user = User.query.filter_by(email=data.get('email')).first()
     # Check if the given password match with the stored password
     if user and user.check_password(data['password']):
         return {

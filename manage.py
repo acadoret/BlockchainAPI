@@ -3,7 +3,7 @@ import unittest
 
 from app import blueprint
 from app.main import create_app, db
-from app.main.models import contract, user
+from app.main.models import contract, user, blacklist_token
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 

@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Resource
 
 from ..utils.dto import UserDto
-from ..services.user_service import save_new_user, get_all_users, get_a_user, is_connected
+from ..services.user_service import save_new_user, get_all_users, get_a_user, is_connected, mass_creating
 
 api = UserDto.api
 _user = UserDto.user
@@ -14,7 +14,6 @@ class UserList(Resource):
     @api.marshal_list_with(_user, envelope='data')
     def get(self):
         """List all registered users"""
-        print('get_user')
         return get_all_users()
 
 
@@ -26,7 +25,6 @@ class User(Resource):
     @api.marshal_with(_user)
     def get(self, email):
         """get a user given its identifier"""
-        print('get_a_user')
         user = get_a_user(email)
         if not user:
             api.abort(404)
@@ -39,11 +37,13 @@ class UserCreate(Resource):
     @api.doc('create a new user')
     @api.expect(_user, validate=True)
     def post(self):
-        """Create a new User """
-        print('post_user')
+        """ Create a new User """
         # TODO: Faire la partie création wallet 
         # ETH et placer l'@ETH dans data 
         data = request.json
+        if data.get('range'):
+            return mass_creating(data.get('range'))
+
         return save_new_user(data=data)
 
 @api.route('/auth', methods=['POST'])
@@ -56,6 +56,4 @@ class AuthUser(Resource):
     @api.expect(_user, validate=True)
     def post(self):
         """Authentificate a user"""
-        print('is_connected')
-        data = request.json
-        return is_connected(data)
+        return is_connected(request.json)
