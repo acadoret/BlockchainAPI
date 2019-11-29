@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Resource
 
 from ..utils.dto import UserDto
+from ..utils import decorators
 from ..services.user_service import save_new_user, get_all_users, get_a_user, is_connected, mass_creating
 
 api = UserDto.api

@@ -1,16 +1,12 @@
 import json
 import ntpath
 from datetime import datetime
-from json.encoder import JSONEncoder
-from os import urandom
-
-from eth_account import Account
 
 from app.main import db
 from app.main.models.user import User, UserEncoder
+from app.main.utils.blockchain_utils import web3
+from app.main.utils.dto import UserDto
 
-from ..utils.blockchain_utils import web3
-from ..utils.dto import UserDto
 
 def generate_token(user):
     try:

@@ -82,8 +82,8 @@ contract Ballot {
      * Give 'voter' the right to vote on this ballot
      * May only be called by 'chairperson'
      ************
-     * Donne à un voter le droit de vote sur ce scrutin
-     * Peut être appelé que par une personne physique?
+     * Donne à un voteur le droit de vote sur ce scrutin
+     * Peut être appelé que par le créateur
      */
      function giveRightToVote(address voter) public {
         /**
@@ -114,6 +114,7 @@ contract Ballot {
         );
         require(voters[voter].weight == 0);
         voters[voter].weight = 1;
+        
      }
 
     /**

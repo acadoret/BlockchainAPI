@@ -57,21 +57,18 @@ class TestAuthBlueprint(BaseTestCase):
             data = json.loads(login_response.data.decode())
             self.assertTrue(data['Authorization'])
             self.assertEqual(login_response.status_code, 200)
-
+            print("test_valid_logout : {}".format(data))
             # valid token logout
             response = self.client.post(
                 '/auth/logout',
                 headers=dict(
-                    Authorization = 'Bearer ' + 
-                    json.loads(login_response.data.decode())['Authorization']
+                    Authorization='Bearer ' + json.loads(
+                        login_response.data.decode()
+                    )['Authorization']
                 )
             )
-
-            print('RESPONSE_LOGOUT')
-            print(response)
             data = json.loads(response.data.decode())
-            print('DATA2')
-            print(data)
+            print("OK {}".format(data))
             self.assertTrue(data['status'] == 'success')
             self.assertEqual(response.status_code, 200)
 
