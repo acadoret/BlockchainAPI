@@ -12,7 +12,7 @@ api = Api(
     blueprint,
     title='BlockchainAPI for eth',
     version='1.0',
-    description='Flask RESTPlus web service for manage and interact with specified contract on ETH Blockchain'
+    description='Flask RESTPlus web service for manage and interact with specified contract on ETH Blockchain',
 )
 
 api.add_namespace(auth_ns)
