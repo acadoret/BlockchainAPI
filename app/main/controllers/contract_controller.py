@@ -13,7 +13,7 @@ _contract = ContractDto.contract
 class ContractList(Resource):
     @api.doc('List of contracts')
     @api.marshal_list_with(_contract, envelope='data')
-    # @token_required 
+    @token_required 
     def get(self,in_progress=False):
         """List all registered contracts"""
         print('get_user')
@@ -50,6 +50,7 @@ class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created.')
     @api.doc('Create a new contract')
     @api.expect(_contract, validate=True)
+    @token_required
     def post(self):
         """Create a new contract """
         print('post_contract')
