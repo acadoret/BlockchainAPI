@@ -8,7 +8,8 @@ class UserDto:
         'username': fields.String(description='Username'),
         'password': fields.String(description='User password'),
         'password_hash': fields.String(description='Hashed password'),
-        'range': fields.Integer(description='Range for mass creating. Only used in dev.')
+        'range': fields.Integer(description='Range for mass creating. Only used in dev.'),
+        'index': fields.Integer(description='Account address')
     })
 
 
