@@ -72,7 +72,9 @@ class Auth:
             if auth_token:
                 resp = User.decode_auth_token(auth_token)
                 if isinstance(resp, str):
+                    print("RESPONSE  : {}".format(resp))
                     user = User.query.filter_by(address=resp).first()
+                    print(user)
                     response_object = {
                         'status': 'success',
                         'data': {
