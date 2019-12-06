@@ -53,7 +53,7 @@ def save_new_user(data):
     if not user:
         new_user = User(
             address=web3.eth.accounts[data['index']],
-            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(index)),
+            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(data['index'])),
             password=data.get('password'),
             email=data.get('email'),
             username=data.get('username'),
