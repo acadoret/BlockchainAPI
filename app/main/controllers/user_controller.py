@@ -8,7 +8,7 @@ api = UserDto.api
 _user = UserDto.user
 
 
-@api.route('/', methods=['GET'])
+@api.route('/all', methods=['GET'])
 class UserList(Resource):
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
@@ -48,14 +48,14 @@ class UserCreate(Resource):
 
         return save_new_user(data=data)
 
-@api.route('/auth', methods=['POST'])
-@api.param('email', 'The User identifier')
-@api.param('password', 'His password')
-@api.response(404, 'Incorrect login credentials.')
-class AuthUser(Resource):
-    @api.response(201, 'User successfully logged.')
-    @api.doc('Log a user')
-    @api.expect(_user, validate=True)
-    def post(self):
-        """Authentificate a user"""
-        return is_connected(request.json)
+# @api.route('/auth', methods=['POST'])
+# @api.param('email', 'The User identifier')
+# @api.param('password', 'His password')
+# @api.response(404, 'Incorrect login credentials.')
+# class AuthUser(Resource):
+#     @api.response(201, 'User successfully logged.')
+#     @api.doc('Log a user')
+#     @api.expect(_user, validate=True)
+#     def post(self):
+#         """Authentificate a user"""
+#         return is_connected(request.json)

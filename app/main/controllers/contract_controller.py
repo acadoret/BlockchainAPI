@@ -50,7 +50,7 @@ class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created.')
     @api.doc('Create a new contract')
     @api.expect(_contract, validate=True)
-    @token_required
+    # @token_required
     def post(self):
         """Create a new contract """
         print('post_contract')
