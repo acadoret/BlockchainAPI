@@ -7,7 +7,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious_secret_key')
-    print("KEY : {}".SECRET_KEY)
+    print("KEY : {}".format(SECRET_KEY))
     DEBUG = False
 
 

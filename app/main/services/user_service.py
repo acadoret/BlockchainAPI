@@ -51,6 +51,7 @@ def save_new_user(data):
     """
     user = User.query.filter_by(email=data['email']).first()
     # eth_acc = personal.newAccount("<YOUR_PASSWORD>")
+        
     if not user:
         new_user = User(
             address=web3.eth.accounts[data['index']],
