@@ -9,5 +9,5 @@
 # provider = HTTPProvider(host)
 # web3 = Web3(provider)
 web3 = ""
-print('Connected to {} : {}'.format(host, web3.isConnected()))
+# print('Connected to {} : {}'.format(host, web3.isConnected()))
 
