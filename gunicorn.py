@@ -2,7 +2,7 @@
 # Reference: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
 import os
 import multiprocessing
-
+from BlockchainAPI.manage import app as application
 _ROOT = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..'))
 _VAR = os.path.join(_ROOT, 'var')
