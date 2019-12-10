@@ -32,3 +32,11 @@ def test():
 
 if __name__ == '__main__':
     manager.run()
+
+
+# @Property
+# def specs_url(self):
+#     '''
+#         :rtype: str
+#     '''
+#     return url_for(self.endpoint('specs'), _external=True)
