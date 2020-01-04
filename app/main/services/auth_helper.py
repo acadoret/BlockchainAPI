@@ -1,5 +1,6 @@
 
-from app.main.models.user import User
+import json 
+from app.main.models.user import User, UserEncoder
 from app.main.services.blacklist_service import save_token
 
 
@@ -16,7 +17,8 @@ class Auth:
                     response_object = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
-                        'Authorization': auth_token.decode()
+                        'Authorization': auth_token.decode(),
+                        'user': json.dumps(user, cls=UserEncoder)
                     }
                     return response_object, 200
             else:
