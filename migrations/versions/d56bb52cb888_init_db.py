@@ -1,8 +1,8 @@
-"""Add blacklist & Auth Entities
+"""init db
 
-Revision ID: 36c309a26cd1
-Revises: 744c392e2047
-Create Date: 2019-11-15 23:57:57.111292
+Revision ID: d56bb52cb888
+Revises: 
+Create Date: 2020-01-05 13:06:44.440740
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '36c309a26cd1'
-down_revision = '744c392e2047'
+revision = 'd56bb52cb888'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -27,7 +27,8 @@ def upgrade():
     )
     op.create_table('users',
     sa.Column('address', sa.String(length=42), nullable=False),
-    sa.Column('path_to_key', sa.String(length=1024), nullable=True),
+    sa.Column('keystore', sa.JSON(), nullable=True),
+    sa.Column('path_to_key', sa.String(), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('registered_on', sa.DateTime(), nullable=False),
     sa.Column('admin', sa.Boolean(), nullable=False),

@@ -50,20 +50,51 @@ def get_contracts_in_progress():
 
 def create_contract_to_blocks(_contract):
     try:
-        # If the Blockchain does not responding, we return 401 HTTP code  
-        ballot = web3.eth.contract(abi=_contract.abi,bytecode=_contract.bytecode)   
+        # If the Blockchain does not responding, we return 401 HTTP code 
+        
+        Ballot = web3.eth.contract(abi=_contract._abi,bytecode=_contract._bytecode)       
+        # DECRYPT AND GET PRIVATEKEY
+        # GET USER
+        user = User.query.filter_by(address=_contract.user_id).first() 
+        # RETRIEVE PKEY
+        private_key = web3.eth.account.decrypt(user.keystore, user.password) 
+        # GET ACCOUNT WITH PKEY
+        eth_account = web3.eth.account.privateKeyToAccount(private_key) 
 
-        tx_hash = ballot.constructor(
-            _contract.proposalNames,
-            _contract.proposalAddrs
-        ).transact()
+        tx = Ballot.constructor().buildTransaction({
+            'from': eth_account.address,
+            'nonce': web3.eth.getTransactionCount(eth_account.address)
+        })
 
+        signed = eth_account.signTransaction(tx)
+
+        tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+    
         tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+        contract_address = tx_receipt["contractAddress"]
+        contract = web3.eth.contract(address=tx_receipt.contractAddress, abi=_contract._abi)
+        print("contract")
+        print(contract.address)
+        print("Contract address : {}".format(contract_address))
+        print("ACCOUNT ADDRESS : {} \n\r".format(eth_account.address))
 
-        return web3.eth.contract(
-            address = tx_receipt.contractAddress,
-            abi = _contract.abi
-        )
+        for proposal in _contract._proposals:
+            print("GAS ESTIMATION : {} \n\r".format(contract.functions.addCandidate(proposal.name).estimateGas()))
+            # print("NB PROP : {} \n\r".format(contract.functions.candidateCount().call()))
+            print("proposal")
+            print(proposal)
+            tx = contract.functions.addCandidate(proposal.name).buildTransaction({
+                'from': eth_account.address,
+                'nonce': web3.eth.getTransactionCount(eth_account.address)
+            })
+            signed = eth_account.signTransaction(tx)
+            tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+            _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+            print("_tx_receipt")
+            print(_tx_receipt)
+            
+        return contract_address
+
     except:
         return {
             'status': 'Transaction failed',
@@ -72,37 +103,40 @@ def create_contract_to_blocks(_contract):
 
 def create_contract(data):
     print('create_contract')
+    # print(type(data))
+    # data = json.load(data)
+    # print(type(data))
     user = data.get('user')
     if user:
         if data.get('proposals'): 
             eth = web3.eth
-            tx_receipt, contract = None
-
+            tx_receipt = None
+            contract = None
             stored_contract = Contract(
                 name = data.get('name'), 
                 description = data.get('descripiton'),
                 end_date = datetime.strptime(data.get('end_date'), date_format),
-                user_id = data.get('user').get('address')
+                user_id = data.get('address')
             )
-            for prop in data.get('proposals'):
+            props = json.loads(data.get('proposals'))
+            for prop in props:
                 # Instanciate new Proposal object
-                proposal = Proposal(
-                    _name = bytes(prop.get('name'),'utf-8'),
-                    _address = web3.toChecksumAddress(prop.get('address'))
-                )
-                stored_contract.proposalNames.append(proposal.name)
-                stored_contract.proposalAddrs.append(proposal.address)
+                proposal = Proposal(_name = prop.get('name'))
+                stored_contract._proposals.append(proposal)
 
-            ethereum_contract = create_contract_to_blocks(stored_contract)
-            stored_contract.address = ethereum_contract.address
+            stored_contract.address = create_contract_to_blocks(stored_contract)
             # Store contract to database
             save_changes(stored_contract) 
-
+            print("stored_contract")
+            print(stored_contract)
+            a,b,c = stored_contract._proposals[0]
             # Return 201 HTTP code
             return {
                 'status': 'success',
                 'message': 'Ballot successfully registered.',
-                'contract' : json.dumps(stored_contract, cls=ContractEncoder)
+                'contract': stored_contract.address,
+                'proposals': [(x,y,z) for x,y,z in stored_contract._proposals]
+                # 'contract' : json.dumps(stored_contract, cls=ContractEncoder)
             }, 201
 
 
