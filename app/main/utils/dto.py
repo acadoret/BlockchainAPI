@@ -7,12 +7,7 @@ class UserDto:
         'email': fields.String(description='User email address'),
         'username': fields.String(description='Username'),
         'password': fields.String(description='User password'),
-        'password_hash': fields.String(description='Hashed password'),
-<<<<<<< HEAD
-=======
-        'range': fields.Integer(description='Range for mass creating. Only used in dev.'),
-        'index': fields.Integer(description='Account address')
->>>>>>> master
+        'password_hash': fields.String(description='Hashed password')
     })
 
 

@@ -54,18 +54,9 @@ def save_new_user(data):
         
     if not user:
         account = web3.eth.account.create()
-        print("account")
-        print(account)
-        print(account.address)
-        print(account.privateKey)
         new_user = User(
-<<<<<<< HEAD
             address=account.address,
             path_to_key="",
-=======
-            address=web3.eth.accounts[data['index']],
-            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(data['index'])),
->>>>>>> master
             password=data.get('password'),
             email=data.get('email'),
             username=data.get('username'),
@@ -81,6 +72,7 @@ def save_new_user(data):
         'status': 'fail',
         'message': 'User already exists. Please Log in.',
     }, 409
+
 
 def get_all_users():
     print('get_all_users')
