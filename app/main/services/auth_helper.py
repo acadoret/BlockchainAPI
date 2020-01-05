@@ -1,4 +1,5 @@
-import json
+import json 
+
 from app.main.models.user import User, UserEncoder
 from app.main.services.blacklist_service import save_token
 
@@ -39,13 +40,13 @@ class Auth:
     def logout_user(data):
         # print("\r\n DATA {}\r\n".format(data))
         if data:
-            auth_token = data.split(" ")[1]
+            auth_token = data
             print("\r\n LOGOUT USER :  {}\r\n".format(auth_token))
         else:
             auth_token = ''
 
         if auth_token:
-            print("coucou")
+            print("logout user coucou")
             resp = User.decode_auth_token(auth_token)
             # print("logout_user data : {}".format(type(resp)))
 
@@ -69,7 +70,6 @@ class Auth:
     def get_logged_in_user(new_request):
             # get the auth token
             auth_token = new_request.headers.get('Authorization')
-            auth_token = auth_token.split(" ")[1]
             if auth_token:
                 resp = User.decode_auth_token(auth_token)
                 if isinstance(resp, str):

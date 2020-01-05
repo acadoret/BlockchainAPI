@@ -47,28 +47,32 @@ def mass_creating(_range):
 
 def save_new_user(data):
     """
-    Saver in DB : This create a User object in SQLiteDB with geven parameters  
+    Saver in DB : This create a User object in SQLiteDB with given parameters  
     """
     user = User.query.filter_by(email=data['email']).first()
     # eth_acc = personal.newAccount("<YOUR_PASSWORD>")
         
     if not user:
+        account = web3.eth.account.create()
         new_user = User(
-            address=web3.eth.accounts[data['index']],
-            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(data['index'])),
+            address=account.address,
+            path_to_key="",
             password=data.get('password'),
             email=data.get('email'),
             username=data.get('username'),
             registered_on=datetime.utcnow()
         )
+        new_user.keystore = account.encrypt(new_user.password)
+        
         save_changes(new_user)
-
+        
         return generate_token(new_user)
         
     return {
         'status': 'fail',
         'message': 'User already exists. Please Log in.',
     }, 409
+
 
 def get_all_users():
     print('get_all_users')

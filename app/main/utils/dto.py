@@ -7,9 +7,7 @@ class UserDto:
         'email': fields.String(description='User email address'),
         'username': fields.String(description='Username'),
         'password': fields.String(description='User password'),
-        'password_hash': fields.String(description='Hashed password'),
-        'range': fields.Integer(description='Range for mass creating. Only used in dev.'),
-        'index': fields.Integer(description='Account address')
+        'password_hash': fields.String(description='Hashed password')
     })
 
 
@@ -19,7 +17,9 @@ class ContractDto:
         'address': fields.String(description='Ballot/Survey\'s address'),
         'name': fields.String(description='Ballot/Survey\'s name'),
         'description': fields.String(description='Description for the ballot/survey'),
-        'end_date': fields.Date(description='End date of this ballot/survey')
+        'end_date': fields.Date(description='End date of this ballot/survey'),
+        # 'user': fields.Nested(UserDto.user),
+        # 'proposals': fields.List(fields.String(description="Proposal names"))
     })
 
 class AuthDto:

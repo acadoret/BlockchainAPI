@@ -9,11 +9,10 @@ _contract = ContractDto.contract
 
 
 
-@api.route('/', methods=['GET'])
+@api.route('/all', methods=['GET'])
 class ContractList(Resource):
     @api.doc('List of contracts')
     @api.marshal_list_with(_contract, envelope='data')
-    @token_required 
     def get(self,in_progress=False):
         """List all registered contracts"""
         print('get_user')

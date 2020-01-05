@@ -16,7 +16,8 @@ class User(db.Model):
     __tablename__ = "users"
 
     address = db.Column(db.String(42), primary_key=True)
-    path_to_key = db.Column(db.String(1024), index=False)
+    keystore = db.Column(db.JSON)
+    path_to_key = db.Column(db.String(), index=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
@@ -37,7 +38,7 @@ class User(db.Model):
     @password.getter
     def password(self):
         # raise AttributeError('password: write-only field')
-        return False
+        return self.password_hash
 
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password_hash, password)
