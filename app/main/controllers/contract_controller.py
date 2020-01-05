@@ -54,3 +54,16 @@ class ContractCreate(Resource):
         """Create a new contract """
         print('post_contract')
         return create_contract(data=request.json)
+
+@api.route('/<address>/vote', methods=['POST'])
+@api.param('address', 'The Contract identifier')
+@api.response(404, 'Contract not found.')
+class ContractOperation(Resource):
+    @api.response(201, 'Vote submitted')
+    @api.doc('Vote on contract')
+    @api.expect(_contract, validate=True)
+    @token_required
+    def post(self):
+        """Create a new contract """
+        print('post_contract_vote')
+        return send_vote(data=request.json)

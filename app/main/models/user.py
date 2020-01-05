@@ -9,7 +9,6 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from .. import db, flask_bcrypt
 from ..config import key
 
-print("User Model: {}".format(key))
 
 class User(db.Model):
     """ User Model for storing user related details """
