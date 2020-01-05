@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 
 import json 
+=======
+import json
+>>>>>>> master
 from app.main.models.user import User, UserEncoder
 from app.main.services.blacklist_service import save_token
 
@@ -17,8 +21,13 @@ class Auth:
                     response_object = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
+<<<<<<< HEAD
                         'Authorization': auth_token.decode(),
                         'user': json.dumps(user, cls=UserEncoder)
+=======
+                        'user' : json.dumps(user, cls=UserEncoder),
+                        'Authorization': auth_token.decode(),
+>>>>>>> master
                     }
                     return response_object, 200
             else:
@@ -38,16 +47,17 @@ class Auth:
 
     @staticmethod
     def logout_user(data):
-        print("\r\n DATA {}\r\n".format(data))
+        # print("\r\n DATA {}\r\n".format(data))
         if data:
             auth_token = data.split(" ")[1]
-            print("\r\n AUTH {}\r\n".format(auth_token))
+            print("\r\n LOGOUT USER :  {}\r\n".format(auth_token))
         else:
             auth_token = ''
 
         if auth_token:
+            print("coucou")
             resp = User.decode_auth_token(auth_token)
-            print("logout_user data : {}".format(type(resp)))
+            # print("logout_user data : {}".format(type(resp)))
 
             if isinstance(resp, str):
                 # mark the token as blacklisted
@@ -69,14 +79,17 @@ class Auth:
     def get_logged_in_user(new_request):
             # get the auth token
             auth_token = new_request.headers.get('Authorization')
+            auth_token = auth_token.split(" ")[1]
             if auth_token:
                 resp = User.decode_auth_token(auth_token)
-                if not isinstance(resp, str):
-                    user = User.query.filter_by(id=resp).first()
+                if isinstance(resp, str):
+                    print("RESPONSE  : {}".format(resp))
+                    user = User.query.filter_by(address=resp).first()
+                    print(user)
                     response_object = {
                         'status': 'success',
                         'data': {
-                            'user_id': user.id,
+                            'user_id': user.address,
                             'email': user.email,
                             'admin': user.admin,
                             'registered_on': str(user.registered_on)

@@ -10,7 +10,7 @@ def save_token(token):
         db.session.commit()
         response_object = {
             'status': 'success',
-            'message': 'Successfully logged out.'
+            'message': 'Successfully logged out.',
         }
         return response_object, 200
     except Exception as e:

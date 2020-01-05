@@ -38,17 +38,20 @@ def mass_creating(_range):
         _data['password'] = "dummy"
         _data['username'] = "dummy_{}".format(_index)
         _data['email'] = "dummy_{}".format(_index)
-        save_new_user(data=_data,index=_index)
+        _data['index'] = _index
+        save_new_user(data=_data)
     return {
         'status': 'success',
         'message': '{} Users are successfully registered.'.format(_range),
     }, 201 
 
-def save_new_user(data, index=0):
+def save_new_user(data):
     """
     Saver in DB : This create a User object in SQLiteDB with given parameters  
     """
     user = User.query.filter_by(email=data['email']).first()
+    # eth_acc = personal.newAccount("<YOUR_PASSWORD>")
+        
     if not user:
         account = web3.eth.account.create()
         print("account")
@@ -56,8 +59,13 @@ def save_new_user(data, index=0):
         print(account.address)
         print(account.privateKey)
         new_user = User(
+<<<<<<< HEAD
             address=account.address,
             path_to_key="",
+=======
+            address=web3.eth.accounts[data['index']],
+            path_to_key=path_leaf('/home/antoine/Documents/pkey{}.txt'.format(data['index'])),
+>>>>>>> master
             password=data.get('password'),
             email=data.get('email'),
             username=data.get('username'),

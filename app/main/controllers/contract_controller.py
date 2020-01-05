@@ -1,9 +1,9 @@
 from flask import request
 from flask_restplus import Resource
 
-from ..utils.dto import ContractDto
-from ..services.contract_service import create_contract, get_all_contracts, get_contracts_in_progress, get_a_contract, send_vote
-
+from app.main.utils.dto import ContractDto
+from app.main.services.contract_service import create_contract, get_all_contracts, get_contracts_in_progress, get_a_contract, send_vote
+from app.main.utils.decorators import admin_token_required, token_required
 api = ContractDto.api
 _contract = ContractDto.contract
 
@@ -13,8 +13,9 @@ _contract = ContractDto.contract
 class ContractList(Resource):
     @api.doc('List of contracts')
     @api.marshal_list_with(_contract, envelope='data')
+    @token_required 
     def get(self,in_progress=False):
-        """List all registered users"""
+        """List all registered contracts"""
         print('get_user')
         if in_progress:
             return get_contracts_in_progress()
@@ -49,6 +50,7 @@ class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created.')
     @api.doc('Create a new contract')
     @api.expect(_contract, validate=True)
+    # @token_required
     def post(self):
         """Create a new contract """
         print('post_contract')

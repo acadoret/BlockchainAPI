@@ -67,7 +67,6 @@ class User(db.Model):
             :return: integer|string
             """
             try:
-                print("\r\n AUTH {}\r\n KEY {} \r\n".format(auth_token, key))
                 payload = jwt.decode(auth_token, key,algorithm='HS256')
                 is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
                 if is_blacklisted_token:
