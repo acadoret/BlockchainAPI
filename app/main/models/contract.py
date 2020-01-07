@@ -6,7 +6,7 @@ from .. import db
 
 
 class Contract(db.Model):
-    __tablename__ = "contracts"
+    __tablename__ = 'contracts'
     
     address = db.Column(db.String(42), primary_key=True)
     name = db.Column(db.String(32))
@@ -14,8 +14,8 @@ class Contract(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.String, db.ForeignKey('users.address'))
-    user = db.relationship("User", back_populates="contract_ids")
-    
+    user = db.relationship('User', back_populates='contract_ids')
+    voter_ids = db.Column(db.String, db.ForeignKey('users.address'))
     """
     Not stored in DB
     """
