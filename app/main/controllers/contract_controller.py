@@ -12,7 +12,7 @@ _contract = ContractDto.contract
 @api.route('/all', methods=['GET'])
 class ContractList(Resource):
     @api.doc('List of contracts')
-    @api.marshal_list_with(_contract, envelope='data')
+    @api.marshal_list_with(_contract, mask='user_address', envelope='data')
     def get(self,in_progress=False):
         """List all registered contracts"""
         print('get_user')

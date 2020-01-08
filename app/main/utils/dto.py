@@ -7,7 +7,8 @@ class UserDto:
         'email': fields.String(description='User email address'),
         'username': fields.String(description='Username'),
         'address': fields.String(description='User address'),
-        'password_hash': fields.String(description='Hashed password')
+        'password_hash': fields.String(description='Hashed password'),
+        'password': fields.String(description='password'),
     })
 
 
