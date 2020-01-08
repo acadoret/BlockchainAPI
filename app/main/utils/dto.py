@@ -15,7 +15,7 @@ class UserDto:
 class ContractDto:
     api = Namespace('contract', description='Contract related operations')
     contract = api.model('contract', {
-        'user_address': fields.String(description='user\'s address who create contract'),
+        'user_address': fields.String(description='User\'s address who create contract'),
         'name': fields.String(description='Ballot/Survey\'s name'),
         'description': fields.String(description='Description for the ballot/survey'),
         'end_date': fields.Date(description='End date of this ballot/survey'),

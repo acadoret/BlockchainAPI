@@ -1,4 +1,5 @@
 import json
+import requests
 import ntpath
 from datetime import datetime
 
@@ -45,6 +46,18 @@ def mass_creating(_range):
         'message': '{} Users are successfully registered.'.format(_range),
     }, 201 
 
+def send_ether(user):
+    print('send_ether')
+    signed_txn = web3.eth.account.signTransaction(dict(
+        nonce = web3.eth.getTransactionCount('0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070'),
+        gasPrice = web3.eth.gasPrice, 
+        gas = 100000,
+        to = user.address,
+        value = web3.toWei(0.5,'ether')
+    ), web3.eth.account.decrypt(keystore=user.keystore, password=user.password))
+
+    return web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+
 def save_new_user(data):
     """
     Saver in DB : This create a User object in SQLiteDB with given parameters  
@@ -65,7 +78,14 @@ def save_new_user(data):
         new_user.keystore = account.encrypt(new_user.password)
         
         save_changes(new_user)
-        
+        # curl -X GET https://faucet.ropsten.be/donate/0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070
+        r = requests.get("https://faucet.ropsten.be/donate/{}".format(new_user.address))
+
+        if r.status_code == 403:
+            tx = send_ether(new_user)
+            print("tx send ether")
+            print(tx)
+
         return generate_token(new_user)
         
     return {

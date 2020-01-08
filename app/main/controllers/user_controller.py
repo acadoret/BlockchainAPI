@@ -11,7 +11,7 @@ _user = UserDto.user
 @api.route('/all', methods=['GET'])
 class UserList(Resource):
     @api.doc('list_of_registered_users')
-    @api.marshal_list_with(_user, envelope='data')
+    @api.marshal_list_with(_user, mask="address, username, email", envelope='data')
     def get(self):
         """List all registered users"""
         return get_all_users()
@@ -22,7 +22,7 @@ class UserList(Resource):
 @api.response(404, 'User not found.')
 class User(Resource):
     @api.doc('get a user')
-    @api.marshal_with(_user)
+    @api.marshal_with(_user, mask="address, username, email", envelope='data')
     @token_required
     def get(self, email):
         """get a user given its identifier"""
