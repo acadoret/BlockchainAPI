@@ -24,10 +24,12 @@ def save_changes(data):
 def get_contract_from_blocks(_contract):
     ''' Get contract from blockchain '''
     try:
-        return web3.eth.contract(
+        eth_contract = web3.eth.contract(
             address = web3.toChecksumAddress(_contract.address),
             abi = _contract.abi
         )
+        
+        return 
     except:
         raise {
             'status': 'Transaction failed',
