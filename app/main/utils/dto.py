@@ -6,7 +6,7 @@ class UserDto:
     user = api.model('user', {
         'email': fields.String(description='User email address'),
         'username': fields.String(description='Username'),
-        'password': fields.String(description='User password'),
+        'address': fields.String(description='User address'),
         'password_hash': fields.String(description='Hashed password')
     })
 
@@ -14,12 +14,12 @@ class UserDto:
 class ContractDto:
     api = Namespace('contract', description='Contract related operations')
     contract = api.model('contract', {
-        'address': fields.String(description='Ballot/Survey\'s address'),
+        'user_address': fields.String(description='user\'s address who create contract'),
         'name': fields.String(description='Ballot/Survey\'s name'),
         'description': fields.String(description='Description for the ballot/survey'),
         'end_date': fields.Date(description='End date of this ballot/survey'),
         # 'user': fields.Nested(UserDto.user),
-        # 'proposals': fields.List(fields.String(description="Proposal names"))
+        'proposals': fields.List(fields.String(description="Proposal names"))
     })
 
 class AuthDto:

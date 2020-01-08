@@ -13,9 +13,11 @@ class Contract(db.Model):
     description = db.Column(db.String(512))
     end_date = db.Column(db.DateTime, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.String, db.ForeignKey('users.address'))
-    user = db.relationship('User', back_populates='contract_ids')
-    voter_ids = db.Column(db.String, db.ForeignKey('users.address'))
+    
+    user_address = db.Column(db.ForeignKey('users.address'))
+    user = db.relationship('User', foreign_keys=[user_address])
+    
+    # voter_ids = db.Column(db.String, db.ForeignKey('users.address'))
     """
     Not stored in DB
     """

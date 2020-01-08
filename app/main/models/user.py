@@ -24,7 +24,8 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True)
     password_hash = db.Column(db.String(100))
     
-    contract_ids = db.relationship("Contract", back_populates="user")
+    contract_ids = db.Column(db.String, db.ForeignKey('contracts.address'))
+    contracts = db.relationship("Contract", foreign_keys=[contract_ids])
     
     @property
     def password(self):

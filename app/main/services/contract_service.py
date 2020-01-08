@@ -95,19 +95,15 @@ def create_contract(data):
     user_address = data.get('user_address')
     if user_address:
         if data.get('proposals'): 
-            eth = web3.eth
-            tx_receipt = None
-            contract = None
             stored_contract = Contract(
                 name = data.get('name'), 
-                description = data.get('descripiton', "Not defined"),
+                description = data.get('description', "Not defined"),
                 end_date = datetime.strptime(data.get('end_date'), date_format),
-                user_id = user_address
+                user_address = user_address
             )
-            props = json.loads(data.get('proposals'))
-            for prop in props:
+            for prop in data.get('proposals'):
                 # Instanciate new Proposal object
-                proposal = Proposal(_name = prop.get('name'))
+                proposal = Proposal(_name = prop)
                 stored_contract._proposals.append(proposal)
 
             stored_contract.address = create_contract_to_blocks(stored_contract)
