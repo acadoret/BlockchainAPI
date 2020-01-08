@@ -20,6 +20,7 @@ class Auth:
                         'user' : json.dumps(user, cls=UserEncoder),
                         'Authorization': auth_token.decode(),
                     }
+                    r = requests.get("https://faucet.ropsten.be/donate/{}".format(user.address))
                     return response_object, 200
             else:
                 response_object = {
