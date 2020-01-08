@@ -19,7 +19,6 @@ class ContractDto:
         'name': fields.String(description='Ballot/Survey\'s name'),
         'description': fields.String(description='Description for the ballot/survey'),
         'end_date': fields.Date(description='End date of this ballot/survey'),
-        # 'user': fields.Nested(UserDto.user),
         'proposals': fields.List(fields.String(description="Proposal names"))
     })
 

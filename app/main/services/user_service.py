@@ -80,7 +80,8 @@ def save_new_user(data):
         save_changes(new_user)
         # curl -X GET https://faucet.ropsten.be/donate/0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070
         r = requests.get("https://faucet.ropsten.be/donate/{}".format(new_user.address))
-
+        print("request")
+        print(r.content)
         if r.status_code == 403:
             tx = send_ether(new_user)
             print("tx send ether")
