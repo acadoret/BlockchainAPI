@@ -21,27 +21,31 @@ def save_changes(data):
     print('add data')
     db.session.commit()
 
-def get_contract_from_blocks(_contract):
+def get_contract_infos_from_blocks(_contract):
     ''' Get contract from blockchain '''
-    try:
-        eth_contract = web3.eth.contract(
-            address = web3.toChecksumAddress(_contract.address),
-            abi = _contract.abi
-        )
-        
-        return 
-    except:
-        raise {
-            'status': 'Transaction failed',
-            'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.'
-        }
+    # try:
+    eth_contract = web3.eth.contract(
+        address = web3.toChecksumAddress(_contract.address),
+        abi = _contract._abi
+    )
+    proposals = eth_contract.getCandidatesCount.call()
+    print("proposals")
+    print(proposals)
+    return True 
+    # except:
+    #     raise {
+    #         'status': 'Transaction failed',
+    #         'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.'
+    #     }
  
 def get_a_contract(data):
     print('get_a_contract')
-    if data.get('address'):
-        return Contract.query.filter_by(address=data.get('address')).first_or_404()
-
-
+    return get_contract_infos_from_blocks(
+        Contract.query.filter_by(address=data).first_or_404()
+    )
+    return {
+        'status': 'Bad request'
+    }, 403
 def get_all_contracts():
     print('get_all_contracts')
     return Contract.query.all()
