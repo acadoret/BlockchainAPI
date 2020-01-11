@@ -12,7 +12,7 @@ _contract = ContractDto.contract
 @api.route('/all', methods=['GET'])
 class ContractList(Resource):
     @api.doc('List of contracts')
-    @api.marshal_list_with(_contract, envelope='data')
+    @api.marshal_list_with(_contract,mask="name, address, end_date, description, proposal_list", envelope='data')
     def get(self,in_progress=False):
         """List all registered contracts"""
         print('get_user')
@@ -21,12 +21,12 @@ class ContractList(Resource):
         return get_all_contracts()
 
 
-@api.route('/<address>', methods=['GET'])
+@api.route('/<address>', methods=['GET', 'POST'])
 @api.param('address', 'The Contract identifier')
 @api.response(404, 'Contract not found.')
 class Contract(Resource):
     @api.doc('Get a contract')
-    @api.marshal_with(_contract)
+    @api.marshal_with(_contract, mask="name, address, end_date, description, _proposals")
     def get(self, address):
         """Get contract with his identifier"""
         print('get_a_contract')
@@ -40,17 +40,26 @@ class Contract(Resource):
     @api.response(201, 'Your vote has been saved.')
     @api.doc('Vote for a proposal')
     @api.expect(_contract, validate=True)
+    @token_required
     def post(self,contract_address, proposal_address):
         print('vote for proposal')
         return send_vote(data=request.json)
 
-@api.route('/create', methods=['POST'])
+@api.route('/create', methods=['POST', 'PUT'])
 class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created.')
     @api.doc('Create a new contract')
     @api.expect(_contract, validate=True)
-    # @token_required
+    @token_required
     def post(self):
         """Create a new contract """
         print('post_contract')
+        return create_contract(data=request.json)
+    
+    @api.response(201, 'Contract successfully created')
+    @api.doc('Create new contract')
+    @api.expect(_contract, validate=True)
+    def put(self):
+        """Create contract with PUT method"""
+        print('PUT CONTRACT')
         return create_contract(data=request.json)

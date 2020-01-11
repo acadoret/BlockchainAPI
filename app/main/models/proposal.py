@@ -3,11 +3,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 class Proposal:
     name = ""
+    index = 0
     vote_count = 0
     is_winning = False
 
-    def __init__(self, _name):
-        self.name = _name
+    def __init__(self, name, index=0, vote_count=0):
+        self.name = name
+        self.vote_count = vote_count
+        self.index = index
 
     def __repr__(self):
         return "<Proposal -> {}>".format(self.name)

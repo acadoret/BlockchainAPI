@@ -23,20 +23,29 @@ def save_changes(data):
 
 def get_contract_infos_from_blocks(_contract):
     ''' Get contract from blockchain '''
-    # try:
-    eth_contract = web3.eth.contract(
-        address = web3.toChecksumAddress(_contract.address),
-        abi = _contract._abi
-    )
-    proposals = eth_contract.getCandidatesCount.call()
-    print("proposals")
-    print(proposals)
-    return True 
-    # except:
-    #     raise {
-    #         'status': 'Transaction failed',
-    #         'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.'
-    #     }
+    print(_contract._proposals)
+    try:
+        eth_contract = web3.eth.contract(
+            address = web3.toChecksumAddress(_contract.address),
+            abi = _contract._abi
+        )
+        count_cadidate = eth_contract.functions.getCandidatesCount().call()
+        print(count_cadidate)
+        # if len(_contract._proposals) != count_cadidate:
+        _contract._proposals = list()
+        for index in range(1, count_cadidate + 1):
+            proposal = eth_contract.functions.candidates(index).call()
+            print(proposal)
+            _contract._proposals.append(Proposal(index=proposal[0], name=proposal[1], vote_count=proposal[2]))
+
+        print("proposals")
+        print(_contract._proposals)
+        return _contract
+    except:
+        raise {
+            'status': 'Transaction failed',
+            'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.'
+        }
  
 def get_a_contract(data):
     print('get_a_contract')
@@ -112,7 +121,7 @@ def create_contract(data):
             )
             for prop in data.get('proposals'):
                 # Instanciate new Proposal object
-                proposal = Proposal(_name = prop)
+                proposal = Proposal(name=prop)
                 stored_contract._proposals.append(proposal)
 
             stored_contract.address = create_contract_to_blocks(stored_contract)

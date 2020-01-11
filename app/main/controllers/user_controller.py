@@ -39,10 +39,7 @@ class UserCreate(Resource):
     @api.expect(_user, validate=True)
     def post(self):
         """ Create a new User """
-        # TODO: Faire la partie création wallet 
-        # ETH et placer l'@ETH dans data 
         data = request.json
         if data.get('range'):
             return mass_creating(data.get('range'))
-
         return save_new_user(data=data)
