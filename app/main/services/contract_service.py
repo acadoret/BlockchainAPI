@@ -194,3 +194,66 @@ def send_vote(data, address):
         'status' : 'fail',
         'message': 'You should vote for a contract.'
     }, 400
+
+def who_win(address):
+    print("Who win ?")
+    print("Contract addr : {}".format(address))
+    
+    today = datetime.date(datetime.now())
+    db_contract = Contract.query.filter_by(address=address).first_or_404()
+    
+    #if datetime.date(contract.end_date) != today:
+    if today != today:
+        return {
+            'status': 'fail',
+            'message': 'You could not finish the Vote yet'
+        }, 400
+    # try:
+
+    db_contract = get_contract_infos_from_blocks(db_contract)
+    print(db_contract)
+    user = User.query.filter_by(address = db_contract.user_address).first()
+    
+    db_contract._proposals = sorted(
+        db_contract._proposals, 
+        key = lambda proposal: proposal.vote_count, 
+        reverse = True
+    )
+
+    eth_contract = web3.eth.contract(
+        abi = db_contract._abi, 
+        address = web3.toChecksumAddress(db_contract.address)
+    )
+
+    # DECRYPT AND GET PRIVATE KEY
+    eth_account = web3.eth.account.privateKeyToAccount(
+        web3.eth.account.decrypt(user.keystore, user.password) 
+    )
+    print('db-contract')
+    print(db_contract.__dict__)
+    tx = eth_contract.functions.is_winner(db_contract._proposals[0].index).buildTransaction({
+        'from': web3.toChecksumAddress(eth_account.address),
+        'nonce': web3.eth.getTransactionCount(eth_account.address),
+        'gasPrice': web3.toWei('1', 'gwei'),
+        'gas':70000
+    })
+    signed = eth_account.signTransaction(tx)
+    tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+    _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+    
+    db_contract._proposals[0].is_winning = True
+    db_contract.state = contract.state_enum.done
+
+    return {
+        'status': 'succes',
+        'message': 'The ballot has been closed.',
+        'winner': db_contract._proposals[0].name,
+        'tx_receipt': web3.toJSON(_tx_receipt)
+    }, 200
+    # except:
+    #      return {
+    #         'status': 'Transaction failed',
+    #         'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.',
+    #         'tx_receipt': Web3.toJSON(_tx_receipt)
+    #     }, 400
+

@@ -65,3 +65,13 @@ class ContractCreate(Resource):
         """Create contract with PUT method"""
         print('PUT CONTRACT')
         return create_contract(data=request.json)
+
+@api.route('/close-vote/<address>', methods=['GET'])
+@api.param('address', 'The Contract identifier')
+@api.response(404, 'Contract not found.')
+class ContractWin(Resource):
+    @api.response(201, 'Your vote has been saved.')
+    @api.doc('Vote for a proposal')
+    def get(self, address):
+        print('who_win')
+        return who_win(address)
