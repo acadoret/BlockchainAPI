@@ -23,23 +23,18 @@ def save_changes(data):
 
 def get_contract_infos_from_blocks(_contract):
     ''' Get contract from blockchain '''
-    print(_contract._proposals)
+    _contract._proposals = list()
     try:
         eth_contract = web3.eth.contract(
             address = web3.toChecksumAddress(_contract.address),
             abi = _contract._abi
         )
         count_cadidate = eth_contract.functions.getCandidatesCount().call()
-        print(count_cadidate)
         # if len(_contract._proposals) != count_cadidate:
-        _contract._proposals = list()
         for index in range(1, count_cadidate + 1):
             proposal = eth_contract.functions.candidates(index).call()
-            print(proposal)
             _contract._proposals.append(Proposal(index=proposal[0], name=proposal[1], vote_count=proposal[2]))
 
-        print("proposals")
-        print(_contract._proposals)
         return _contract
     except:
         raise {
@@ -55,6 +50,7 @@ def get_a_contract(data):
     return {
         'status': 'Bad request'
     }, 403
+
 def get_all_contracts():
     print('get_all_contracts')
     return Contract.query.all()
@@ -117,7 +113,8 @@ def create_contract(data):
                 name = data.get('name'), 
                 description = data.get('description', "Not defined"),
                 end_date = datetime.strptime(data.get('end_date'), date_format),
-                user_address = user_address
+                user_address = user_address,
+                state = "in_progress"
             )
             for prop in data.get('proposals'):
                 # Instanciate new Proposal object
@@ -151,40 +148,48 @@ def create_contract(data):
         'message': 'Unauthorized user.'
     }, 401
 
-def send_vote(data):
-    if data.get('proposal_index', False) and data.get('user_address', False):
-        raise json.dumps({
+def send_vote(data, address):
+    print('send_vote')
+    print("ADDRESS : {}".format(address))
+    print(data)
+    if not data.get('proposal_index', False) and not data.get('user_address', False):
+        return json.dumps({
             'status' : 'Error',
             'message': 'You need to pass proposal_index and user_address in request.'
-        })
-    if data.get('contract_address', False):
+        }), 401
+    if address:
         user = User.query.filter_by(
-            address = data.get('address')
+            address = data.get('user_address')
         ).first_or_404(description = 'User not found. Please log in.')
         db_contract = Contract.query.filter_by(
-            address = data.get('contract_address')
+            address = address
         ).first_or_404(description = 'Ballot not found.')
 
-        try:
-            eth_contract = web3.eth.contract(
-                abi = db_contract._abi, 
-                address = web3.toChecksumAddress(db_contract.address)
-            )
-            # DECRYPT AND GET PRIVATEKEY
-            eth_account = web3.eth.account.privateKeyToAccount(
-                web3.eth.account.decrypt(user.keystore, user.password) 
-            )
-            print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
-            tx = eth_contract.functions.vote(proposal.name).buildTransaction({
-                'from': eth_account.address,
-                'nonce': web3.eth.getTransactionCount(eth_account.address)
-            })
-            signed = eth_account.signTransaction(tx)
-            tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
-            _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-            
-        except:
-            pass
+        # try:
+        eth_contract = web3.eth.contract(
+            abi = db_contract._abi, 
+            address = web3.toChecksumAddress(db_contract.address)
+        )
+        # DECRYPT AND GET PRIVATE KEY
+        eth_account = web3.eth.account.privateKeyToAccount(
+            web3.eth.account.decrypt(user.keystore, user.password) 
+        )
+        # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
+        print('OKOKOKOKOKOKOKO\n\r')
+        tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
+            'from': eth_account.address,
+            'nonce': web3.eth.getTransactionCount(eth_account.address),
+            # "gasLimit":100000
+        })
+        signed = eth_account.signTransaction(tx)
+        tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+        _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+        return {
+            'status': 'success',
+            'message': 'Your vote has successfully send'
+        }, 200
+        # except:
+        #     pass
     return {
         'status' : 'fail',
         'message': 'You should vote for a contract.'

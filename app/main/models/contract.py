@@ -1,4 +1,4 @@
-import json
+import json, enum
 from datetime import datetime
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
@@ -8,7 +8,12 @@ from .. import db
 class Contract(db.Model):
     __tablename__ = 'contracts'
     
+    class state_enum(enum.Enum):
+        in_progress = "in_progress"
+        done = "done"
+    
     address = db.Column(db.String(42), primary_key=True)
+    state = db.Column(db.Enum(state_enum))
     name = db.Column(db.String(32))
     description = db.Column(db.String(512))
     end_date = db.Column(db.DateTime, nullable=False)

@@ -22,14 +22,20 @@ class ContractDto:
     })
     contract = api.model('contract', {
         'address': fields.String(description='Contract\'s address'),
-        'user_address': fields.String(description='User\'s address who create contract'),
+        'state': fields.String(description='State of ballot/survey'),
         'name': fields.String(description='Ballot/Survey\'s name'),
         'description': fields.String(description='Description for the ballot/survey'),
         'end_date': fields.Date(description='End date of this ballot/survey'),
-        'proposals': fields.List(fields.String(description="Proposal names for insert")),
+        'user_address': fields.String(description='User\'s address who create contract'),
+        'proposal_index': fields.Integer(description="Index of proposal"),
+        'proposals': fields.List(
+            fields.String(description="Proposal name"),
+            description="Proposal names for insert"
+        ),
         '_proposals': fields.List(
-            fields.Nested(proposal,description="Choices of Contract")
-        )
+            fields.Nested(proposal,description="Vote choices"),
+            description="List of proposals"
+        ),
     })
 
 class AuthDto:
