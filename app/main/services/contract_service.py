@@ -1,17 +1,21 @@
 import json
 import ntpath
+import sys
 from datetime import datetime
 from os import urandom
-from flask import jsonify
-from app.main import db
 
+from flask import jsonify
+from requests import exceptions
+
+from app.main import db
 from app.main.models.contract import Contract, ContractEncoder
 from app.main.models.proposal import Proposal, ProposalEncoder
 from app.main.models.user import User
-from .user_service import get_all_users
-
-from ..utils.blockchain_utils import web3
 from app.main.utils.dto import ContractDto
+
+from app.main.utils.blockchain_utils import web3
+from app.main.services.user_service import get_all_users
+
 date_format = "%d/%m/%Y"
 
 def save_changes(data):
@@ -36,10 +40,11 @@ def get_contract_infos_from_blocks(_contract):
             _contract._proposals.append(Proposal(index=proposal[0], name=proposal[1], vote_count=proposal[2]))
 
         return _contract
-    except:
+    except web3.exceptions.Time as exception:
         raise {
             'status': 'Transaction failed',
-            'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.'
+            'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.',
+            'exception': exception
         }
  
 def get_a_contract(data):
@@ -165,31 +170,36 @@ def send_vote(data, address):
             address = address
         ).first_or_404(description = 'Ballot not found.')
 
-        # try:
-        eth_contract = web3.eth.contract(
-            abi = db_contract._abi, 
-            address = web3.toChecksumAddress(db_contract.address)
-        )
-        # DECRYPT AND GET PRIVATE KEY
-        eth_account = web3.eth.account.privateKeyToAccount(
-            web3.eth.account.decrypt(user.keystore, user.password) 
-        )
-        # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
-        print('OKOKOKOKOKOKOKO\n\r')
-        tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
-            'from': eth_account.address,
-            'nonce': web3.eth.getTransactionCount(eth_account.address),
-            # "gasLimit":100000
-        })
-        signed = eth_account.signTransaction(tx)
-        tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
-        _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-        return {
-            'status': 'success',
-            'message': 'Your vote has successfully send'
-        }, 200
-        # except:
-        #     pass
+        try:
+            eth_contract = web3.eth.contract(
+                abi = db_contract._abi, 
+                address = web3.toChecksumAddress(db_contract.address)
+            )
+            # DECRYPT AND GET PRIVATE KEY
+            eth_account = web3.eth.account.privateKeyToAccount(
+                web3.eth.account.decrypt(user.keystore, user.password) 
+            )
+            # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
+            tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
+                'from': eth_account.address,
+                'nonce': web3.eth.getTransactionCount(eth_account.address),
+                # "gasLimit":100000
+            })
+            signed = eth_account.signTransaction(tx)
+            tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+            _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+            return {
+                'status': 'success',
+                'message': 'Your vote has successfully send'
+            }, 200
+        except requests.exceptions.RequestException as e:
+            exc_info = sys.exc_info()
+            raise exc_info[2]
+            return {
+                'status' : 'fail',
+                'message': 'You should vote for a contract.'
+            }, 400
+    
     return {
         'status' : 'fail',
         'message': 'You should vote for a contract.'
@@ -256,4 +266,3 @@ def who_win(address):
     #         'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.',
     #         'tx_receipt': Web3.toJSON(_tx_receipt)
     #     }, 400
-
