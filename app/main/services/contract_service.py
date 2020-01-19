@@ -205,12 +205,22 @@ def send_vote(data, address):
         'message': 'You should vote for a contract.'
     }, 400
 
+def get_winner(proposals):
+    # truc = [(proposal,item) for item in proposals if proposal.vote_count == item.vote_count and proposal.index != item.index]
+    winner = list()
+    for proposal in proposals:
+        if proposal.vote_count == proposals[0].vote_count:
+            winner.append(proposal)
+    return winner
+    
+    
 def who_win(address):
     print("Who win ?")
     print("Contract addr : {}".format(address))
     
     today = datetime.date(datetime.now())
     db_contract = Contract.query.filter_by(address=address).first_or_404()
+    user = User.query.filter_by(address = db_contract.user_address).first_or_404()
     
     #if datetime.date(contract.end_date) != today:
     if today != today:
@@ -218,51 +228,58 @@ def who_win(address):
             'status': 'fail',
             'message': 'You could not finish the Vote yet'
         }, 400
-    # try:
+    try:
+        db_contract = get_contract_infos_from_blocks(db_contract)
+        
+        db_contract._proposals = sorted(
+            db_contract._proposals, 
+            key = lambda proposal: proposal.vote_count, 
+            reverse = True
+        )
+        
+        winner = get_winner(db_contract._proposals)
+        if len(winner) > 0:
+            return {
+                'status': '',
+                'message': '{} proposals have same number of vote ({}). So we can\'t define a unique winner.'.format(len(winner), winner[0].vote_count,),
+                'winners': [item.name for item in winner]
+            }, 200
 
-    db_contract = get_contract_infos_from_blocks(db_contract)
-    print(db_contract)
-    user = User.query.filter_by(address = db_contract.user_address).first()
-    
-    db_contract._proposals = sorted(
-        db_contract._proposals, 
-        key = lambda proposal: proposal.vote_count, 
-        reverse = True
-    )
 
-    eth_contract = web3.eth.contract(
-        abi = db_contract._abi, 
-        address = web3.toChecksumAddress(db_contract.address)
-    )
+        eth_contract = web3.eth.contract(
+            abi = db_contract._abi, 
+            address = web3.toChecksumAddress(db_contract.address)
+        )
 
-    # DECRYPT AND GET PRIVATE KEY
-    eth_account = web3.eth.account.privateKeyToAccount(
-        web3.eth.account.decrypt(user.keystore, user.password) 
-    )
-    print('db-contract')
-    print(db_contract.__dict__)
-    tx = eth_contract.functions.is_winner(db_contract._proposals[0].index).buildTransaction({
-        'from': web3.toChecksumAddress(eth_account.address),
-        'nonce': web3.eth.getTransactionCount(eth_account.address),
-        'gasPrice': web3.toWei('1', 'gwei'),
-        'gas':70000
-    })
-    signed = eth_account.signTransaction(tx)
-    tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
-    _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-    
-    db_contract._proposals[0].is_winning = True
-    db_contract.state = contract.state_enum.done
+        # DECRYPT AND GET PRIVATE KEY
+        eth_account = web3.eth.account.privateKeyToAccount(
+            web3.eth.account.decrypt(user.keystore, user.password) 
+        )
 
-    return {
-        'status': 'succes',
-        'message': 'The ballot has been closed.',
-        'winner': db_contract._proposals[0].name,
-        'tx_receipt': web3.toJSON(_tx_receipt)
-    }, 200
-    # except:
-    #      return {
-    #         'status': 'Transaction failed',
-    #         'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.',
-    #         'tx_receipt': Web3.toJSON(_tx_receipt)
-    #     }, 400
+        tx = eth_contract.functions.is_winner(db_contract._proposals[0].index).buildTransaction({
+            'from': web3.toChecksumAddress(eth_account.address),
+            'nonce': web3.eth.getTransactionCount(eth_account.address),
+            'gasPrice': web3.toWei('1', 'gwei'),
+            'gas':70000
+        })
+
+        signed = eth_account.signTransaction(tx)
+        tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+        _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+        
+        db_contract._proposals[0].is_winning = True
+        db_contract.state = Contract.state_enum.done
+
+        return {
+            'status': 'succes',
+            'message': 'The ballot has been closed.',
+            'winner': db_contract._proposals[0].name,
+            'tx_receipt': web3.toJSON(_tx_receipt)
+        }, 200
+    except:
+         return {
+            'status': 'Transaction failed',
+            'message': 'Connection with Blockchain can\'t be established. The contract cannot be fetched.',
+            'tx_receipt': Web3.toJSON(_tx_receipt)
+        }, 400
+
