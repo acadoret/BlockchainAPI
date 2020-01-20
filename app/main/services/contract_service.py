@@ -20,13 +20,13 @@ date_format = "%d/%m/%Y"
 
 def save_changes(data):
     print('save_contract_changes')
-    print(data)
     db.session.add(data)
-    print('add data')
     db.session.commit()
 
 def get_contract_infos_from_blocks(_contract):
     ''' Get contract from blockchain '''
+    print('get_contract_infos_from_blocks')
+
     _contract._proposals = list()
     try:
         eth_contract = web3.eth.contract(
@@ -40,6 +40,7 @@ def get_contract_infos_from_blocks(_contract):
             _contract._proposals.append(Proposal(index=proposal[0], name=proposal[1], vote_count=proposal[2]))
 
         return _contract
+
     except web3.exceptions.Time as exception:
         raise {
             'status': 'Transaction failed',
@@ -128,10 +129,7 @@ def create_contract(data):
 
             stored_contract.address = create_contract_to_blocks(stored_contract)
             # Store contract to database
-            print(stored_contract.address)
             save_changes(stored_contract) 
-            print("stored_contract")
-            print(stored_contract)
             # Return 201 HTTP code
             return {
                 'status': 'success',
@@ -155,8 +153,6 @@ def create_contract(data):
 
 def send_vote(data, address):
     print('send_vote')
-    print("ADDRESS : {}".format(address))
-    print(data)
     if not data.get('proposal_index', False) and not data.get('user_address', False):
         return json.dumps({
             'status' : 'Error',
@@ -170,33 +166,32 @@ def send_vote(data, address):
             address = address
         ).first_or_404(description = 'Ballot not found.')
 
-        try:
-            eth_contract = web3.eth.contract(
-                abi = db_contract._abi, 
-                address = web3.toChecksumAddress(db_contract.address)
-            )
-            # DECRYPT AND GET PRIVATE KEY
-            eth_account = web3.eth.account.privateKeyToAccount(
-                web3.eth.account.decrypt(user.keystore, user.password) 
-            )
-            # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
-            tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
-                'from': eth_account.address,
-                'nonce': web3.eth.getTransactionCount(eth_account.address),
-                # "gasLimit":100000
-            })
-            signed = eth_account.signTransaction(tx)
-            tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
-            _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-            return {
-                'status': 'success',
-                'message': 'Your vote has successfully send'
-            }, 200
-        except :
-            return {
-                'status': 'Transaction failed',
-                'message': 'Connection ko with Blockchain can\'t be established. The contract cannot be created '
-            }, 400
+        eth_contract = web3.eth.contract(
+            abi = db_contract._abi, 
+            address = web3.toChecksumAddress(db_contract.address)
+        )
+        # DECRYPT AND GET PRIVATE KEY
+        eth_account = web3.eth.account.privateKeyToAccount(
+            web3.eth.account.decrypt(user.keystore, user.password) 
+        )
+
+        # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
+        tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
+            'from': eth_account.address,
+            'nonce': web3.eth.getTransactionCount(eth_account.address),
+            'gasPrice': web3.toWei('1', 'gwei'),
+            'gas': 70000
+        })
+
+        signed = eth_account.signTransaction(tx)
+        tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
+        _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+
+        return {
+            'status': 'success',
+            'message': 'Your vote has successfully sent',
+            'voted_proposal': get_contract_infos_from_blocks(db_contract)._proposals[data.get('proposal_index') - 1].toJSON(),
+        }, 200
     
     return {
         'status' : 'fail',
