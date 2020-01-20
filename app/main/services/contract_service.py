@@ -104,7 +104,7 @@ def create_contract_to_blocks(_contract):
         return contract_address
 
     except:
-        raise {
+        return {
             'status': 'Transaction failed',
             'message': 'Connection ko with Blockchain can\'t be established. The contract cannot be created '
         }
@@ -192,12 +192,10 @@ def send_vote(data, address):
                 'status': 'success',
                 'message': 'Your vote has successfully send'
             }, 200
-        except requests.exceptions.RequestException as e:
-            exc_info = sys.exc_info()
-            raise exc_info[2]
+        except :
             return {
-                'status' : 'fail',
-                'message': 'You should vote for a contract.'
+                'status': 'Transaction failed',
+                'message': 'Connection ko with Blockchain can\'t be established. The contract cannot be created '
             }, 400
     
     return {

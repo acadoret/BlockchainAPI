@@ -43,8 +43,6 @@ class Contract(Resource):
     # @token_required
     def post(self,address):
         print('vote for proposal')
-        print(address)
-        print(request.json)
         return send_vote(data=request.json, address=address)
 
 @api.route('/create', methods=['POST', 'PUT'])
