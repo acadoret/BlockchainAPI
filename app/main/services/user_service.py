@@ -48,15 +48,20 @@ def mass_creating(_range):
 
 def send_ether(user):
     print('send_ether')
+    print("ETH ON MAIN ACCOUNT : {}".format(web3.fromWei(web3.eth.getBalance('0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070'), 'ether')))
+    main_account = User.query.filter_by(address='0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070').first_or_404(description="Main user not found")
     signed_txn = web3.eth.account.signTransaction(dict(
         nonce = web3.eth.getTransactionCount('0x14f021B82a5752C7f0bBb1d5eF5f7bD4b22e4070'),
         gasPrice = web3.eth.gasPrice, 
         gas = 100000,
         to = user.address,
         value = web3.toWei(0.5,'ether')
-    ), web3.eth.account.decrypt(keystore=user.keystore, password=user.password))
+    ), web3.eth.account.decrypt(main_account.keystore, main_account.password))
 
-    return web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+    tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+    _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+    print("ETH ON CREATED ACCOUNT : {}".format(web3.fromWei(web3.eth.getBalance(user.address), 'ether')))
+    return _tx_receipt 
 
 def save_new_user(data):
     """
@@ -82,6 +87,7 @@ def save_new_user(data):
         r = requests.get("https://faucet.ropsten.be/donate/{}".format(new_user.address))
         print("request")
         print(r.content)
+        print("ETH ON CREATED ACCOUNT : {}".format(web3.fromWei(web3.eth.getBalance(new_user.address), 'ether')))
         if r.status_code == 403:
             tx = send_ether(new_user)
             print("tx send ether")

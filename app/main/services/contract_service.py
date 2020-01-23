@@ -184,8 +184,8 @@ def send_vote(data, address):
         tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
             'from': eth_account.address,
             'nonce': web3.eth.getTransactionCount(eth_account.address),
-            'gasPrice': web3.toWei(5, 'gwei'),
-            'gas': 70000
+            'gasPrice': web3.toWei(10, 'gwei'),
+            'gas': 700000
         })
 
         signed = eth_account.signTransaction(tx)
