@@ -153,11 +153,13 @@ def create_contract(data):
 
 def send_vote(data, address):
     print('send_vote')
+
     if not data.get('proposal_index', False) and not data.get('user_address', False):
         return json.dumps({
             'status' : 'Error',
             'message': 'You need to pass proposal_index and user_address in request.'
         }), 401
+
     if address:
         user = User.query.filter_by(
             address = data.get('user_address')
@@ -175,17 +177,23 @@ def send_vote(data, address):
             web3.eth.account.decrypt(user.keystore, user.password) 
         )
 
-        # print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
+        print("ETH ON ACCOUNT : {}".format(web3.fromWei(web3.eth.getBalance(eth_account.address), 'ether')))
+        print("GAS ESTIMATION : {} \n\r".format(eth_contract.functions.vote(data.get('proposal_index')).estimateGas()))
+        print("PROPOSAL : {}".format(data.get('proposal_index')))
+
         tx = eth_contract.functions.vote(data.get('proposal_index')).buildTransaction({
             'from': eth_account.address,
             'nonce': web3.eth.getTransactionCount(eth_account.address),
-            'gasPrice': web3.toWei('1', 'gwei'),
+            'gasPrice': web3.toWei(5, 'gwei'),
             'gas': 70000
         })
 
         signed = eth_account.signTransaction(tx)
         tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
         _tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+        print("ETH ON ACCOUNT AFTER TX: {}".format(web3.fromWei(web3.eth.getBalance(eth_account.address), 'ether')))
+        print('tx_receipt')
+        print(_tx_receipt)
 
         return {
             'status': 'success',

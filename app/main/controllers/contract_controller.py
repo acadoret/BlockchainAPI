@@ -40,7 +40,7 @@ class Contract(Resource):
     @api.response(201, 'Your vote has been saved.')
     @api.doc('Vote for a proposal')
     @api.expect(_contract, validate=True)
-    @token_required
+    # @token_required
     def post(self,address):
         print('vote for proposal')
         return send_vote(data=request.json, address=address)
@@ -51,7 +51,7 @@ class ContractCreate(Resource):
     @api.response(201, 'Contract successfully created')
     @api.doc('Create new contract')
     @api.expect(_contract, validate=True)
-    @token_required
+    # @token_required
     def put(self):
         """Create contract with PUT method"""
         print('PUT CONTRACT')
