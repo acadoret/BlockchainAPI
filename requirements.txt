@@ -47,7 +47,7 @@ py-solc==3.2.0
 py-solc-x==0.6.0
 pycparser==2.19
 pycryptodome==3.9.1
-PyJWT==1.7.1
+PyJWT==2.4.0
 pyrsistent==0.15.5
 python-dateutil==2.8.1
 python-editor==1.0.4
